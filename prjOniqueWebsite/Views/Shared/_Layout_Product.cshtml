@@ -1,0 +1,476 @@
+﻿<!DOCTYPE html>
+<html lang="zh-hant">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Onique|@ViewData["Title"]</title>
+    <link href="~/css/reset.css" rel="stylesheet" />
+    <link href="~/css/common.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link href="~/css/layout.css" rel="stylesheet" />
+    <link href="~/css/sweetalert2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/busy-load@0.1.2/dist/app.min.css" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header class="sticky-top">
+        <nav class="navbar shadow navbar-expand-sm navbar-toggleable-sm navbar-light bg-dark border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <div class="nav-logo">
+                        <img src="~/images/header/Logo.png" />
+                    </div>
+                    <div class="nav-logo-en">
+                        <img src="~/images/footer/logoen.png" />
+                    </div>
+                </a>
+                <button class="navbar-toggler bg-black" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon text-white"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1 gap-3">
+                        <li class="nav-item">
+                            <a class="nav-text nav-link text-white" href="@Url.Content("~/product/list?rank=newest")">新品到貨</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white nav-text" href="@Url.Content("~/product/list?rank=sales")">熱銷商品</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white nav-text" href="@Url.Content("~/product/list")">所有商品</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white nav-text" asp-area="" asp-controller="Discount" asp-action="Index">優惠專區</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center gap-2 mx-3">
+                        <div class="d-flex align-items-center gap-2 p-1 bg-white rounded-3 mx-2">
+                            <div class="width-170px">
+                                <input type="text" class="form-control border-0" id="inputKeyword" placeholder="請輸入關鍵字" />
+                            </div>
+                            <div class="divKeyword cursor-pointer">
+                                <div class="width-30px">
+                                    <img src="~/images/header/loupe.png" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="collapse navbar-collapse" id="navbarNavDarkDropdown">
+                            <ul class="navbar-nav">
+                                <li class="nav-item dropdown" id="memberIcon">
+                                    <button class="btn btn-dark" data-bs-toggle="dropdown">
+                                        <img src="~/images/header/user.png" class="circle-size-35" />
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-dark">
+                                        <li class="d-flex align-items-center mx-2">
+                                            <img src="/images/icon/help_icon.png" class="width-16px" />
+                                            <a class="dropdown-item fs-12px" href="#">幫助中心</a>
+                                        </li>
+                                        <li class="d-flex align-items-center mx-2">
+                                            <img src="/images/icon/login.png" class="width-16px" />
+                                            <a class="dropdown-item fs-12px" asp-action="Login" asp-controller="Home">登入/註冊</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="nav-icon mx-3">
+                            <a class="position-relative" id="collectItems" href="@Url.Content("~/fmember/index?display=MemberMyKeep")">
+                                <img src="~/images/header/like.png" />
+                            </a>
+                        </div>
+                        <a asp-action="index" asp-controller="ShoppingCart" class="nav-icon mx-3 position-relative" id="cartItems">
+                            <img src="~/images/header/shopping-cart.png" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div id="page-container">
+        <div id="content-wrap">
+            <div>
+                <div class="modal fade" id="modalAddToCart" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header gap-3">
+                                <div class="fw-bold fs-5 text-center" id="modalProductName"></div>
+                                <div>
+                                    <span>NT$</span>
+                                    <span class="text-danger" id="modalPrice"></span>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class=" d-flex p-2 align-items-center justify-content-around">
+                                    <div style="width: 300px;height: 300px;">
+                                        <img src="" alt="" id="modalPhoto" class="rounded">
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold mx-2">
+                                            顏色 :
+                                        </div>
+                                        <div class="m-2" style="width: 200px;">
+                                            <select name="" id="modalSelectColor" class="form-select form-select-sm">
+
+                                            </select>
+                                        </div>
+                                        <div class="fw-bold mx-2">
+                                            尺寸 :
+                                        </div>
+                                        <div class="m-2" style="width: 200px;">
+                                            <select name="" id="modalSelectSize" class="form-select form-select-sm">
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer d-flex justify-content-between">
+                                <div class="fw-bold p-2 d-flex ">
+                                    <div class="border border-dark-subtle text-center cursor-pointer" style="width: 25px;" id="modalBtnReduce">-</div>
+                                    <input type="text" value="1" id="modalOrderQty" class="width-50px text-center modalOrderQty" readonly/>
+                                    <div class="border border-dark-subtle text-center cursor-pointer" style="width: 25px;" id="modalBtnIncrease">+</div>
+                                </div>
+                                <div>
+                                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">取消</button>
+                                    <button type="button" class="btn btn-dark" id="modalBtnAddToCart">加入</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mx-auto d-flex gap-4 justify-content-around width-1400px">
+                    <div class="width-250px">
+                        <div class="border rounded shadow-sm mb-4" data-aos="fade-right">
+                            <div class="fw-bold text-center bg-black text-white m-2 rounded py-1">精選分類</div>
+                            <div id="divDiscountNav"></div>
+                        </div>
+                        <div class="border rounded shadow-sm" data-aos="fade-right">
+                            <div class="fw-bold text-center bg-black text-white m-2 rounded py-1">商品分類</div>
+                            <div class="divCategories">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="width-1110px" data-aos="fade-left" id="productDetail">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+        </div>
+        <footer id="footer" class="footer fs-6 bg-dark mt-3">
+            <div class="container mx-auto text-white row">
+                <div class="col-3">
+                    <div class="lh-1 fw-bold fs-4 my-3">
+                        關於Onique
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        品牌故事
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        店鋪資訊
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        聯絡我們
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="lh-1 fw-bold fs-4 my-3">
+                        購物相關
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        隱私權保護政策
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        退換貨說明
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        會員電子報
+                    </div>
+                </div>
+                <div class="col-3">
+                    <div class="lh-1 fw-bold fs-4 my-3">
+                        官方社群
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        Facebook
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        Line
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        Instagram
+                    </div>
+                    <div class="lh-1 my-3 fs-12px">
+                        Youtube
+                    </div>
+                </div>
+                <div class="col-3 mt-3">
+                    <div>
+                        <img src="~/images/footer/logoen.png" />
+                    </div>
+                    <div class="row justify-content-center gap-3 mt-4">
+                        <div class="col-2">
+                            <img src="~/images/footer/fb_logo.png" />
+                        </div>
+                        <div class="col-2">
+                            <img src="~/images/footer/ig_logo.png" />
+                        </div>
+                        <div class="col-2">
+                            <img src="~/images/footer/line_logo.png" />
+                        </div>
+                        <div class="col-2">
+                            <img src="~/images/footer/youtube.png" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/busy-load@0.1.2/dist/app.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="~/js/sweetalert2.all.min.js"></script>
+    <script>
+
+        AOS.init();
+
+        CheckLogin()
+
+        async function CheckLogin() {
+            const response = await fetch(`@Url.Content("~/HomeApi/IsLogin")`)
+            const isLogin = await response.json();
+
+            if (isLogin) {
+
+                const response = await fetch(`@Url.Content("~/HomeApi/UpdataNav")`)
+                const dto = await response.json();
+
+                const { datas, role } = dto;
+
+                if (role == "Member") {
+                    let str = "";
+                    str += `<ul class="navbar-nav">
+                                                <li class="nav-item dropdown" id="memberIcon">
+                                                    <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">`;
+                    if (datas.photoPath != null) {
+                        str += `<img src="@Url.Content("~/images/uploads/members/")${datas.photoPath}" class="circle-size-35" />`
+                    }
+                    else {
+                        str += `<img src="@Url.Content("~/images/header/user.png")" class="circle-size-35" />`
+
+                    }
+                    str += `</button>
+                                            <ul class="dropdown-menu dropdown-menu-dark">
+                                                <li class="d-flex align-items-center mx-2">
+                                                    <img src="@Url.Content("~/images/header/user.png")" class="width-16px" />
+                                                    <a class="dropdown-item fs-12px" href="@Url.Content("~/fmember/index?display=MemberInfo")">會員資料</a>
+                                                </li>
+                                                <li class="d-flex align-items-center mx-2">
+                                                    <img src="@Url.Content("~/images/background/shopping-list.png")" class="width-16px" />
+                                                    <a class="dropdown-item fs-12px" href="@Url.Content("~/fmember/index?display=MemberOrder")">訂單查詢</a>
+                                                </li>
+                                                <li class="d-flex align-items-center mx-2">
+                                                    <img src="@Url.Content("~/images/header/like.png")" class="width-16px" />
+                                                    <a class="dropdown-item fs-12px" href="@Url.Content("~/fmember/index?display=MemberMyKeep")">我的收藏</a>
+                                                </li>
+                                                <li class="d-flex align-items-center mx-2">
+                                                    <img src="@Url.Content("~/images/icon/logout.png")" class="width-16px" />
+                                                    <a class="dropdown-item fs-12px" href="@Url.Content("~/Home/Logout")">會員登出</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>`;
+
+                    $("#memberIcon").html(str)
+
+                    GetCartItems()
+                    GetCollectItems()
+                } else {
+                    let str = "";
+                    str += `<ul class="navbar-nav">
+                                                        <li class="nav-item dropdown" id="memberIcon">
+                                                            <button class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">`;
+                    if (datas.photoPath != null) {
+                        str += `<img src="@Url.Content("~/images/uploads/Employee/")${datas.photoPath}" class="circle-size-35" />`
+                    }
+                    else {
+                        str += `<img src="@Url.Content("~/images/header/user.png")" class="circle-size-35" />`
+
+                    }
+                    str += `</button>
+                                                    <ul class="dropdown-menu dropdown-menu-dark">
+                                                        <li class="d-flex align-items-center mx-2">
+                                                            <img src="@Url.Content("~/images/header/user.png")" class="width-16px" />
+                                                            <a class="dropdown-item fs-12px" href="@Url.Content("~/home/backgroundindex")">後臺管理</a>
+                                                        </li>
+                                                        <li class="d-flex align-items-center mx-2">
+                                                            <img src="@Url.Content("~/images/icon/logout.png")" class="width-16px" />
+                                                            <a class="dropdown-item fs-12px" href="@Url.Content("~/Home/Logout")">會員登出</a>
+                                                        </li>
+                                                    </ul>
+                                                </li>
+                                            </ul>`;
+
+                    $("#memberIcon").html(str)
+                }
+
+            }
+        }
+
+        async function GetCartItems() {
+            $("#cartItems").empty();
+
+            const response = await fetch(`@Url.Content("~/ProductApi/CartItems")`)
+            const data = await response.json()
+            console.log(data)
+            let totalItems = data.toString()
+
+            let str = `<img src="@Url.Content("~/images/header/shopping-cart.png")" />
+                                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" >
+                                                    ${totalItems}
+                                                    <span class="visually-hidden">unread messages</span>
+                                                </span>`;
+
+            $("#cartItems").append(str);
+        }
+
+        async function GetCollectItems() {
+            $("#collectItems").empty();
+
+            const response = await fetch(`@Url.Content("~/MemberApi/CollectItems")`)
+            const data = await response.json()
+            console.log(data)
+            let totalItems = data.toString()
+
+            let str = `<img src="@Url.Content("~/images/header/like.png")" />
+                                                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" >
+                                                            ${totalItems}
+                                                            <span class="visually-hidden">unread messages</span>
+                                                        </span>`;
+
+            $("#collectItems").append(str);
+        }
+
+        DisplayCategories()
+
+        DisplayDiscountOptions()
+
+        async function DisplayDiscountOptions(){
+            const response = await fetch(`@Url.Content("~/DiscountApi/GetDiscountList")`)
+            const datas = await response.json()
+
+            const discountOption = datas.map(item=>{
+                const { title, discountId } = item;
+
+                return `<div class="p-1 my-1 mx-3" ><div class="divDiscountOption fw-bold fs-14px cursor-pointer" data-discountid="${discountId}">${ title }</div></div >`
+            })
+
+            $('#divDiscountNav').html(discountOption.join(""))
+        }
+
+        async function DisplayCategories() {
+            const response = await fetch(`@Url.Content("~/productapi/GetCategories")`)
+            const datas = await response.json();
+
+            const categories = datas.map(item => {
+                return `<div class="p-1 my-1 mx-3"><div class="divSearchByCategory link-underline-light link-dark fw-bold fs-14px cursor-pointer">${item}</div></div>`
+            })
+
+            $('.divCategories').html(categories.join(""))
+        }
+
+        $("#divDiscountNav").on('click', '.divDiscountOption', function (event) {
+            event.stopPropagation()
+
+            let discountId = $(this).data("discountid")
+
+            window.location.href = `@Url.Content("~/Product/List?discountId=")${discountId}`
+        })
+
+        $('.divCategories').on('click', '.divSearchByCategory', function () {
+            let categoryName = $(this).text();
+            window.location.href = `@Url.Content("~/Product/List?categoryName=")${categoryName}`
+        })
+
+        $('.divKeyword').on('click', function () {
+            let keyword = $('#inputKeyword').val()
+            window.location.href = `@Url.Content("~/Product/List?keyword=")${keyword}`
+        })
+
+        $('#inputKeyword').on('keypress', function (event) {
+            if (event.key === "Enter") {
+
+                let keyword = $(this).val()
+                window.location.href = `@Url.Content("~/Product/List?keyword=")${keyword}`
+            }
+        })
+
+        $("#modalBtnReduce").click(function () {
+            let orderQty = Number($("#modalOrderQty").val())
+            if (orderQty <= 1) {
+                orderQty = 1
+                $("#modalOrderQty").val(orderQty.toString());
+            }
+            else {
+                orderQty--
+                $("#modalOrderQty").val(orderQty.toString());
+            }
+        })
+
+        $("#modalBtnIncrease").click(function () {
+            let orderQty = Number($("#modalOrderQty").val())
+            orderQty++
+            $("#modalOrderQty").val(orderQty)
+        })
+
+        async function AddToCart(stockId, qty) {
+
+            const response = await fetch(`@Url.Content("~/ProductApi/AddToCart?")stockId=${stockId}&qty=${qty}`)
+            const data = await response.json()
+
+            const { message, statusCode } = data;
+            if (statusCode == 200) {
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: message,
+                    confirmButtonColor: '#3C3C3C',
+                    confirmButtonText: '確認'
+                })
+                GetCartItems()
+
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            }
+
+        }
+
+    </script>
+
+    @if (TempData["AlertLogin"] != null)
+    {
+        <script>
+            Swal.fire({
+                title: '歡迎登入',
+                text: '您好!@TempData["AlertLogin"]',
+                icon: 'success',
+                confirmButtonColor: '#3C3C3C',
+                confirmButtonText: '確認'
+            })
+        </script>
+    }
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

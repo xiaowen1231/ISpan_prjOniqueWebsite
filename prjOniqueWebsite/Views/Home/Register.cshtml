@@ -1,0 +1,208 @@
+﻿@model prjOniqueWebsite.Models.ViewModels.FMemberVM
+@{
+    ViewData["Title"] = "Register";
+}
+
+<form method="post" enctype="multipart/form-data">
+    <div class="width-1000px mx-auto p-2 border rounded d-flex shadow" data-aos="zoom-in">
+        <div class="circle-size-300">
+            <img src="@Url.Content("~/images/uploads/members/default.jpg")" class="circle-size-300" id="imgMember" />
+            <input type="file" name="Photo" id="Photo" class="form-control my-5" />
+        </div>
+        <div class="flex-fill p-2">
+            <div class="fs-5 fw-bold border-bottom p-2">
+                註冊新會員
+            </div>
+            <div class="row justify-content-around  p-3 ">
+                <div class="pt-2 d-flex col-6 align-items-center">
+                    <div class=" width-50px  fw-bold">姓名</div>
+                    <div class="mx-2">
+                        <input type="text" class="form-control " name="Name" placeholder="請輸入姓名" id="inputName" />
+                        @Html.ValidationMessageFor(member=>member.Name,"",new{@class="text-danger"})
+                    </div>
+                </div>
+                <div class="pt-2 d-flex col-6 align-items-center">
+                    <div class=" width-50px  fw-bold">帳號</div>
+                    <div class="mx-2">
+                        <input type="text" class="form-control " name="Email" placeholder="請輸入電子信箱" id="inputEmail" />
+                        @Html.ValidationMessageFor(member=>member.Email,"",new{@class="text-danger"})
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-around  p-3 ">
+                <div class="pt-2 d-flex col-6 align-items-center">
+                    <div class=" width-50px  fw-bold">電話</div>
+                    <div class="mx-2">
+                        <input type="text" class="form-control" placeholder="請輸入電話" name="Phone" id="inputPhone" />
+                        @Html.ValidationMessageFor(member=>member.Phone,"",new{@class="text-danger"})
+                    </div>
+                </div>
+                <div class="pt-2 d-flex col-6 align-items-center">
+                    <div class=" width-50px  fw-bold">生日</div>
+                    <div class="mx-2">
+                        <input type="date" class="form-control" value="" name="DateOfBirth" id="memberDateOfBirth" />
+                        @Html.ValidationMessageFor(member=>member.DateOfBirth,"",new{@class="text-danger"})
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-around  p-3 ">
+                <div class="pt-2 d-flex col-6 align-items-center">
+                    <div class=" width-50px  fw-bold">密碼</div>
+                    <div class="mx-2">
+                        <input type="password" class="form-control" placeholder="請輸入密碼" name="Password" id="inputPassword" />
+                        @Html.ValidationMessageFor(member=>member.Password,"",new{@class="text-danger"})
+                    </div>
+                </div>
+                <div class="pt-2 d-flex col-6 align-items-center">
+                    <div class=" width-80px  fw-bold">確認密碼</div>
+                    <div class="mx-2">
+                        <input type="password" class="form-control" placeholder="請重新輸入密碼" name="ComfirmPassword" id="inputComfirmPassword" />
+                        <span asp-validation-for="ComfirmPassword" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-around  p-3 ">
+                <div class="pt-2 d-flex align-items-baseline">
+                    <div class=" width-50px  fw-bold">性別</div>
+                    <div class="mx-3 d-flex">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Gender" id="genderFalse" value="False" checked>
+                            <label class="form-check-label" for="genderFalse">
+                                男
+                            </label>
+                        </div>
+                        <div class="form-check ">
+                            <input class="form-check-input" type="radio" name="Gender" id="genderTrue" value="True">
+                            <label class="form-check-label" for="genderTrue">
+                                女
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-around p-3">
+                <div class="col-12  mt-2 d-flex">
+                    <div class=" width-50px fw-bold">地址</div>
+                    <div class="mx-3">
+                        <input type="hidden" value="@ViewBag.city" id="memberCity" />
+                        <select class="form-select" name="Citys" id="city">
+                            @* <option value="1">台北市</option>
+                            <option value="2">新北市</option>
+                            <option value="3" >桃園市</option>*@
+                        </select>
+                    </div>
+                    <div class="mx-3">
+                        <input type="hidden" value="@ViewBag.area" id="memberArea" />
+                        <select class="form-select" name="Areas" id="area">
+                            @*<option value="1">大安區</option>
+                            <option value="2">中山區</option>
+                            <option value="3">中正區</option>*@
+                        </select>
+                    </div>
+                    <div class="mx-3 ">
+                        <input type="text" class="form-control" placeholder="請輸入地址" name="Address" id="inputAddress" />
+                    </div>
+                </div>
+            </div>
+            <input type="checkbox" id="showPassword"> 顯示密碼
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="d-flex justify-content-between p-2">
+                <div class="p-2">
+                </div>
+                <div class="p-2">
+                    <input type="button" class="btn btn-outline-secondary" value="Demo" id="Demo" />
+                    <input type="submit" value="註冊" id="Login" class="btn btn-dark fw-bold">
+                    @Html.ActionLink("取消", "Login","Home", "",new {@class="btn btn-outline-dark fw-bold" })
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts{
+    <script>
+        loadCity();
+
+        async function loadCity() {
+            const response = await fetch(`@Url.Content("~/memberapi/LoadCity")`)
+            const datas = await response.json();
+            const memberCity = $("#memberCity").val()
+            let selectOptions = ""
+
+            datas.map(item => {
+                const { cityId, cityName } = item
+
+                selectOptions += ` <option value="${cityId}">${cityName}</option>`
+
+            })
+            $("#city").append(selectOptions)
+            loadArea();
+        }
+
+        $("#city").change(function () {
+            // 清空area選項
+            $("#area").empty();
+            loadArea();
+        })
+
+        async function loadArea() {
+            const cityId = $("#city").val()
+            const response = await fetch(`@Url.Content("~/memberapi/loadarea?cityId=")${cityId}`)
+            const datas = await response.json();
+            const memberArea = $("#memberArea").val()
+            let selectOptions = ""
+
+            datas.map(item => {
+                const { areaId, areaName } = item
+
+                selectOptions += ` <option value="${areaId}">${areaName}</option>`
+            })
+            $("#area").append(selectOptions);
+        }
+
+        const photo = document.querySelector('#Photo')
+
+        photo.addEventListener('change', () => {
+            const file = photo.files
+            if (file.length == 0) {
+                let imgDefault = '@Url.Content("~/images/uploads/members/default.jpg")'
+                $('#imgMember').attr('src', imgDefault)
+            }
+            else {
+                const url = URL.createObjectURL(file[0]);
+                $('#imgMember').attr('src', url)
+            }
+        })
+
+        $(document).ready(function () {
+            $('#showPassword').on('change', function () {
+                var passwordInput = $('#inputPassword');
+                var confirmpasswordInput = $('#inputComfirmPassword');
+                if ($(this).is(':checked')) {
+                    passwordInput.attr('type', 'text');
+                    confirmpasswordInput.attr('type', 'text');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    confirmpasswordInput.attr('type', 'password');
+                }
+            });
+        });
+
+        $('#Demo').on('click', function () {
+            let name = "Shiao"
+            $('#inputName').val(name)
+            let email = "shiao1124@gmail.com"
+            $('#inputEmail').val(email)
+            let phone = "0912345678"
+            $('#inputPhone').val(phone)
+            let dateofbirth = "1998-11-05"
+            $('#memberDateOfBirth').val(dateofbirth)
+            $('#inputPassword').val("123")
+            $('#inputComfirmPassword').val("123")
+            $('#inputPhone').val(phone)
+            let address = "中山北路一段"
+            $('#inputAddress').val(address)
+        })
+    </script>
+}
+

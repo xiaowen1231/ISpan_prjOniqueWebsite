@@ -1,0 +1,178 @@
+﻿@*@model IEnumerable<prjOniqueWebsite.Models.EFModels.Products>*@
+@model prjOniqueWebsite.Models.ViewModels.BgProductsPagingVM
+@{
+    ViewData["Title"] = "商品管理";
+    Layout = "~/Views/Shared/_Layout_Background.cshtml";
+}
+
+
+
+<form class="container my-2 p-2 border border-secondary rounded-4 shadow justify-content-center">
+    <div class="row text-center border-bottom mx-2 p-2">
+        <div class="fs-3 fw-bold">商品清單</div>
+    </div>
+    <div class="p-2">
+        <div class="d-flex p-2 align-items-center my-2">
+            <div class="col-1" style="margin-left: 2%;">
+                <a class="btn btn-dark" asp-action="Create">新增商品</a>
+            </div>
+            <div class="d-flex align-items-center" style="margin-left:27%">
+                <div class="fw-bold mx-2">關鍵字搜尋:</div>
+                <div>
+                    <input type="text" name="txtKeyword" id="txtKeyword" placeholder="可輸入名稱、價格、分類進行搜尋" class="form-control" style="width:300px">
+                </div> 
+                <div>
+                    <input type="button" class="btn btn-outline-secondary mx-4" value="Demo" id="DemoSearch"/>
+                    <input type="submit" class="btn btn-dark mx-2 fw-bold" value="查詢" />
+                    <a class="btn btn-outline-dark mx-4 fw-bold" asp-action="Index">取消查詢</a>
+                </div>
+            </div>
+            @*<div class="col-2 d-flex align-items-center">
+                <div class="fw-bold mx-2">商品分類:</div>
+                <div>
+                    <select class="form-select" id="selectCategory">                      
+                    </select>
+                </div>
+            </div>
+            <div class="col-3 d-flex align-items-center">
+                <div class="fw-bold mx-2">優惠活動:</div>
+                <div>
+                    <select class="form-select" id="selectDiscount">                        
+                    </select>
+                </div>
+            </div>*@
+           
+        </div>
+        <table class="table align-middle text-center table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th width="200">
+                        商品圖片
+                    </th>
+                    <th width="200">
+                        商品名稱
+                    </th>
+                    <th width="200">
+                        商品價格
+                    </th>
+                    <th width="180">
+                        商品分類
+                    </th>
+                    <th width="120">
+                        編輯
+                    </th>
+                    <th width="120">
+                        刪除
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="ProductList">
+
+                @foreach (var item in Model.Products)
+                {
+                    string path = Url.Content("~/images/uploads/products/") + (string.IsNullOrEmpty(item.PhotoPath) ? "default.jpg" : item.PhotoPath);
+                    <tr>
+                        <td>
+                            <img src="@path" id="productImg" />
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProductName)
+                        </td>
+                        <td id="price">
+                            @Math.Floor(item.Price)
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProductCategory.CategoryName)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ProductId"><img src="~/images/BgProductManage/edit.png" class="width-30px" style="margin: auto;" /></a>
+                        </td>
+                        <td>
+                            <a asp-action="Delete" asp-route-id="@item.ProductId"><img src="~/images/BgProductManage/trash.png" class="width-30px" style="margin: auto;" /></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!string.IsNullOrEmpty(ViewBag.Message))
+    {
+        <div class="alert alert-warning text-center" style="width:98%;margin:auto">
+            @ViewBag.Message
+        </div>
+    }
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center" id="pagination">
+            @for (int i = 1; i <= Model.PagingInfo.TotalPages; i++)
+            {
+                <li class="page-item @(i==Model.PagingInfo.CurrenPage ? "active":"")">
+                    <a class="page-link" style="color:black;" href="?pageNumber=@i">@i</a>
+                </li>
+            }
+            @*<li class="page-item">
+                <a class="page-link" style="color: black;" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link" style="color: black;" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" style="color: black;" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" style="color: black;" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#" style="color: black;" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>*@
+        </ul>
+    </nav>
+</form>
+@section Styles{
+    <style>
+        #price::before {
+            content: "$";
+        }
+
+        #productImg {
+            width: 130px;
+            height: 130px;
+            object-fit:cover;
+        }
+
+        #img {
+            height: 70%;
+            width: 70%;
+            object-fit: cover;
+        }
+    </style>
+}
+@section Scripts{
+    <script>
+        $('#DemoSearch').on('click',function(){
+            let txtKeyword = "日系";
+            $('#txtKeyword').val(txtKeyword);
+        })
+        //const selectCategory = document.querySelector("#selectCategory")
+        //const selectDiscount = document.querySelector("#selectDiscount")
+        //loadcategory()
+        //async function loadcategory() {
+        //    const response = await fetch(`@Url.Content("~/BgProductManageApi/ShowCategoryList")`)
+        //    const datas = await response.json();
+        //    console.log(datas)
+        //    const category = datas.map(category=>{
+        //        const { categoryId, categoryName }=category;
+        //        return `<option value="${categoryId}">${categoryName}</option>`
+        //    })
+        //    selectCategory.innerHTML=category.join("")            
+        //}       
+
+        //loadDiscount();
+        //async function loadDiscount(){
+        //    const response = await fetch(`@Url.Content("~/BgProductManageApi/ShowDiscountList")`)
+        //    const datas = await response.json();
+        //    console.log(datas)
+        //    const discount = datas.map(discount=>{
+        //        const { id,title }=discount;
+        //        return `<option value="${id}">${title}</option>`
+        //    })
+        //    selectDiscount.innerHTML = discount.join("");
+        //}
+    </script>
+}

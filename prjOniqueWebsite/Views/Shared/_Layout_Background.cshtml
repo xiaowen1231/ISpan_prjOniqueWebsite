@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="~/css/BackgroundSystemHomePage.css">
+    <link href="~/css/reset.css" rel="stylesheet" />
+    <link href="~/css/common.css" rel="stylesheet" />
+    <link href="~/css/sweetalert2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link href="~/css/jquery-ui.min.css" rel="stylesheet" />
+    @await RenderSectionAsync("Styles", required: false)
+    <title>管理系統 || @ViewData["Title"]</title>
+</head>
+<body>
+    <div class="myContainer nav">
+        <div class="nav">
+            <div class="logoAndTitle">
+                <div class="logo cursor-pointer" id="divLogo">
+                    <img src="@Url.Content("~/images/footer/logoen.png")" />
+                </div>
+                <div class="title">後台管理系統</div>
+            </div>
+            <div class="accountAndManage">
+                <div id="divEMPName"></div>
+                <div class="photoStickers" data-bs-toggle="dropdown">
+                    <img src="@Url.Content("~/images/uploads/Employee/default.jpg")" id="imgEmpPhoto" />
+                </div>
+                <ul class="dropdown-menu dropdown-menu-dark">
+                    <li class="d-flex align-items-center mx-2">
+                        <img src="@Url.Content("~/images/icon/logout.png")" class="width-16px" />
+                        <a class="dropdown-item fs-12px" href="@Url.Content("~/Home/Logout")">會員登出</a>
+                    </li>
+                </ul>
+                <div class="backgroundHeadIcon">
+                    <img src="@Url.Content("~/images/background/bell.png")" />
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notify">
+                        99+
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="myContainer">
+        <div class="optionsAndContent">
+            <div class="managerOptions sticky pt-2">
+                <div class="btnOptions menu" id="btnMenu">
+                    <figure class="icon">
+                        <img src="@Url.Content("~/images/background/close.png")" />
+                    </figure>
+                </div>
+                <a class="nav-link text-white" asp-controller="Employees" asp-action="Index">
+                    <div class="btnOptions">
+                        <div class="icon">
+                            <img src="@Url.Content("~/images/background/employee.png")" />
+                        </div>
+                        <div>員工管理</div>
+                    </div>
+                </a>
+                <a class="nav-link text-white" asp-controller="member" asp-action="Index">
+                    <div class="btnOptions">
+                        <div class="icon">
+                            <img src="@Url.Content("~/images/background/group.png")" />
+                        </div>
+                        <div>會員管理</div>
+                    </div>
+                </a>
+                <a class="nav-link text-white" asp-controller="BgProductsManage" asp-action="Index">
+                    <div class="btnOptions">
+                        <div class="icon">
+                            <img src="@Url.Content("~/images/background/tshirt.png")" />
+                        </div>
+                        <div>商品管理</div>
+                    </div>
+                </a>
+                <a class="nav-link text-white" asp-controller="order" asp-action="Index">
+                    <div class="btnOptions" id="order">
+                        <div class="icon">
+                            <img src="@Url.Content("~/images/background/shopping-list.png")" />
+                        </div>
+                        <div>訂單管理</div>
+                    </div>
+                </a>
+                <a class="nav-link text-white" asp-controller="DiscountManage" asp-action="Index">
+                    <div class="btnOptions">
+                        <div class="icon">
+                            <img src="@Url.Content("~/images/background/coupon.png")" />
+                        </div>
+                        <div>優惠管理</div>
+                    </div>
+                </a>
+            </div>
+            <div class="container">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+    <div class="messageIcon">
+        <figure>
+            <img src="~/images/background/messenger.png" />
+        </figure>
+    </div>
+    <script src="~/js/all.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/busy-load@0.1.2/dist/app.min.js"></script>
+
+    <script src="~/js/jquery-ui.min.js"></script>
+    <script src="~/js/sweetalert2.all.min.js"></script>
+    <script>
+        let minSize = false;
+
+        $("#btnMenu").click(function () {
+            $(this).parent().toggleClass("min")
+            if (!minSize) {
+                $(this).find("img").prop("src", '@Url.Content("~/images/background/menu.png")')
+                minSize = true
+            }
+            else {
+                $(this).find("img").prop("src", '@Url.Content("~/images/background/close.png")')
+                minSize = false
+            }
+        })
+
+        const notify = document.querySelector("#notify")
+
+        getOrderStatusCount();
+
+        async function getOrderStatusCount() {
+            const response = await fetch(`@Url.Content("~/OrderApi/getOrderStatusCount?statusId=1")`)
+            const data = await response.json()
+            notify.innerHTML = data;
+        }
+        $(".backgroundHeadIcon").click(function () {
+            console.log("123")
+            window.location.href = '@Url.Content("~/Order/Index?keyword=")待出貨';
+                   
+        })
+        CheckLogin()
+
+        async function CheckLogin() {
+            const response = await fetch(`@Url.Content("~/HomeApi/IsLogin")`)
+            const isLogin = await response.json();
+
+            if (isLogin) {
+
+                const response = await fetch(`@Url.Content("~/HomeApi/UpdataNav")`)
+                const dto = await response.json();
+
+                const { datas } = dto
+                
+                let hello = `Hello ! ${datas.employeeName}`
+
+                $("#divEMPName").text(hello)
+                if (datas.photoPath != null) {
+                    $("#imgEmpPhoto").attr("src", `@Url.Content("~/images/uploads/Employee/")${datas.photoPath}`)
+                }
+            }
+        }
+
+        $('#divLogo').on('click',function(){
+            window.location.href = `@Url.Content("~/Home/Index")`
+        })
+    </script>
+
+    @if (TempData["AlertLogin"] != null)
+    {
+        <script>
+            Swal.fire({
+                title: '歡迎登入',
+                text: '您好!@TempData["AlertLogin"]',
+                icon: 'success',
+                confirmButtonColor: '#3C3C3C',
+                confirmButtonText: '確認'
+            })
+        </script>
+    }
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html>

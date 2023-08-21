@@ -1,0 +1,413 @@
+﻿@{
+    string title = "所有商品";
+    string categoryName = string.Empty;
+    string keyword = string.Empty;
+    string pageTitle = title;
+    int discountId = 0;
+    int pageNumber = 1;
+    string rank = "newest";
+
+    if (ViewBag.PageNumber != 0)
+    {
+        pageNumber = ViewBag.PageNumber;
+    }
+
+    if (!string.IsNullOrEmpty(ViewBag.Keyword))
+    {
+        keyword = ViewBag.Keyword;
+
+        pageTitle = title + " > 搜尋: " + keyword;
+    }
+
+    if (!string.IsNullOrEmpty(ViewBag.CategoryName))
+    {
+        categoryName = ViewBag.CategoryName;
+        pageTitle += " > " + categoryName;
+    }
+
+    if (ViewBag.DiscountId != 0)
+    {
+        discountId = ViewBag.DiscountId;
+        pageTitle += " > " + ViewBag.DiscountName;
+    }
+
+    if (!string.IsNullOrEmpty(ViewBag.Rank))
+    {
+        rank = ViewBag.Rank;
+    }
+
+    ViewData["Title"] = pageTitle;
+
+    Layout = Url.Content("~/Views/Shared/_Layout_Product.cshtml");
+}
+
+<div>
+    <div class="m-2">
+        <a href="@Url.Content("~/Home/Index")" class="fs-5 fw-bold link-underline-light link-dark">首頁</a>
+        <span class="fs-5 fw-bold">&gt;</span>
+        <span class="fs-5 fw-bold">@pageTitle</span>
+        <input type="hidden" value="@keyword" id="searchKeyword" />
+        <input type="hidden" value="@categoryName" id="searchCategoryName" />
+        <input type="hidden" value="@pageNumber" id="searchPageNumber" />
+        <input type="hidden" value="@discountId" id="searchDiscount" />
+        <input type="hidden" value="@rank" id="searchRank" />
+    </div>
+    @if (ViewBag.HasProduct)
+    {
+        <div class="divDiscountImg">
+            <img src="@Url.Content("~/images/DiscountPhoto/")@ViewBag.PhotoPath" />
+        </div>
+    }
+    <div class="d-flex m-2 gap-3 align-items-center ">
+        <div>排序方式: </div>
+        <div>
+            <select class="form-select form-select-sm" id="selectOrderBy">
+                    <option value="newest">最新上架</option>
+                    <option value="sales">熱賣商品</option>
+                    <option value="priceDesc">價格高到低</option>
+                    <option value="priceAsc">價格低到高</option>
+            </select>
+        </div>
+    </div>
+    <div class="mx-auto d-flex flex-md-wrap " id="divProductList">
+    </div>
+    <div class="container m-3 cursor-pointer">
+        <nav class="d-flex justify-content-center" aria-label="Page navigation example">
+            <ul class="pagination ulGUI">
+            </ul>
+        </nav>
+    </div>
+</div>
+@section Styles{
+    <style>
+        .price:before {
+            content: "$  "
+        }
+
+        .divNotFound {
+            position: fixed;
+            top: 50%;
+            transform: translate(-45%,-30%);
+            left: 50%;
+        }
+
+        .w-240-h-240:hover {
+            width: 245px;
+            height: 245px;
+            transition: all 0.4s;
+        }
+
+        .divDiscountImg {
+            height: 400px;
+            width: 100%;
+            padding: 10px;
+        }
+
+        .modal-content {
+            width: 750px;
+            position: fixed;
+            top: 50%;
+            transform: translate(-50%,-55%);
+            left: 50%;
+        }
+    </style>
+}
+@section Scripts{
+    <script>
+        let keyword = $('#searchKeyword').val()
+        let categoryName = $('#searchCategoryName').val()
+        let pageNumber = $("#searchPageNumber").val()
+        let discountId = Number($("#searchDiscount").val())
+        let rank = $("#searchRank").val()
+
+
+        Display(keyword, categoryName, rank, pageNumber, discountId)
+
+        async function Display(keyword, categoryName, rank, pageNumber, discountId) {
+            const response = await fetch(`@Url.Content("~/ProductApi/ProductList?keyword=")${keyword}&categoryName=${categoryName}&rank=${rank}&pageNumber=${pageNumber}&discountId=${discountId}`)
+            const datas = await response.json()
+
+            const { products, pagination } = datas.value;
+            
+            if (products.length != 0) {
+                const cards = products.map(theCard => {
+
+                const { id, productName, price, photoPath, discountMethod, discountPrice } = theCard
+
+                    if (discountMethod == null) {
+                        return (`<div data-id="${id}" class="cursor-pointer border rounded shadow-sm m-2 divProductDetail" data-aos="fade-up">
+                                        <div class="w-240-h-240 m-2">
+                                            <img src="@Url.Content("~/images/uploads/products/")${photoPath}" class="rounded" />
+                                        </div>
+                                        <div class="bg-dark rounded text-white m-2 text-center p-1 fw-bold">${productName}</div>
+                                        <div class="price text-center">${price}</div>
+                                        <div class="d-flex gap-3 mx-2 mb-2 justify-content-end align-items-center">
+                                            <div class="w-25-h-25 divShopping" data-productid="${id}" >
+                                                <img src="@Url.Content("~/images/icon/shopping_black.png")" />
+                                            </div>
+                                            <div class="w-25-h-25 divCollection" data-productid="${id}" >
+                                                <img src="@Url.Content("~/images/icon/love.png")" />
+                                            </div>
+                                        </div>
+                                    </div>`)
+                    }
+
+                    else {
+                        return (`<div data-id="${id}" class="cursor-pointer position-relative border rounded shadow-sm m-2 divProductDetail" data-aos="fade-up">
+                                        <div class="w-240-h-240 m-2">
+                                            <img src="@Url.Content("~/images/uploads/products/")${photoPath}" class="rounded" />
+                                        </div>
+                                        <div class="bg-dark rounded text-white m-2 text-center p-1 fw-bold">${productName}</div>
+                                        <div class="text-center text-danger price">${discountPrice}</div>
+                                        <div class="d-flex gap-3 mx-2 mb-2 align-items-center justify-content-end">
+                                            <div class="w-25-h-25 divShopping" data-productid="${id}">
+                                                <img src="@Url.Content("~/images/icon/shopping_black.png")" />
+                                            </div>
+                                            <div class="w-25-h-25 divCollection" data-productid="${id}">
+                                                <img src="@Url.Content("~/images/icon/love.png")" />
+                                            </div>
+                                        </div>
+                                        <div class="divShopping position-absolute top-0 start-0" data-productid="${id}" style="width:50px;height:50px">
+                                            <img src="@Url.Content("~/images/icon/sale-tag.png")" />
+                                        </div>
+                                    </div>`)
+                    }
+
+
+                })
+
+                let liPagination = ""
+
+                if (pagination.pageNumber >= 1) {
+                    liPagination += `<li  class="page-item ">
+                                                <a class="page-link pageItemPrevNumber" data-pagenumber="${pagination.pageItemPrevNumber}" aria-label="Previous">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>`
+                }
+
+                for (let i = 0; i < pagination.pageBarItemCount; i++) {
+                    let active = pagination.pageBarStartNumber + i == pagination.pageNumber ? "active" : "";
+                    let clickPageNumber = pagination.pageBarStartNumber + i;
+                    liPagination += `<li class="${active} page-item"><a class="page-link pageItemPrevNumber" data-pagenumber="${clickPageNumber}">${clickPageNumber}</a></li>`
+                }
+
+                if (pagination.pageNumber < pagination.pages) {
+                    liPagination += `<li class="page-item">
+                                                <a class="page-link pageItemPrevNumber" data-pagenumber="${pagination.pageItemNextNumber}" aria-label="Next">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>`
+                }
+
+                $('#divProductList').html(cards.join(""))
+
+                $('.ulGUI').html(liPagination)
+
+                $('#selectOrderBy').val(rank)
+            }
+            else {
+                let searchHint = `<div class="flex-fill divNotFound">
+                                            <div class="w-200-h-200 mx-auto">
+                                                    <img src="@Url.Content("~/images/icon/box.png")" alt="" style="height: 100%;height: 100%;">
+                                            </div>
+                                            <div class="text-center m-3 fw-bold fs-5 no_items.png">
+                                                (ಥ_ಥ) 很抱歉 , 找不到相關商品
+                                            </div>
+                                                    <div class="text-secondary text-center fs-14px m-3 fw-bold">
+                                                請確認搜尋條件
+                                            </div>
+                                        </div>`;
+
+                $('#divProductList').html(searchHint)
+            }
+        }
+
+        $("#selectOrderBy").on('change', function () {
+            console.log(pageNumber)
+            rank = $(this).val();
+
+            Display(keyword, categoryName, rank, pageNumber, discountId)
+        })
+
+        $('#divProductList').on('click', '.divProductDetail', function (event) {
+            let id = $(this).data("id")
+
+            window.location.href = `@Url.Content("~/Product/Detail/")${id}`;
+        })
+
+        $('#divProductList').on('click', '.divShopping', async function (event) {
+            event.stopPropagation();
+
+            const response = await fetch(`@Url.Content("~/HomeApi/IsLogin")`)
+            const isLogin = await response.json();
+
+            if (isLogin) {
+                let productId = $(this).data("productid");
+
+                const resp = await fetch(`@Url.Content("~/ProductApi/ShowProductInfo/")${productId}`);
+                const data = await resp.json();
+
+                if(data.apiResult.statusCode == 200){
+                    const modalAddToCart = new bootstrap.Modal(document.getElementById('modalAddToCart'));
+
+                    $('#modalProductName').text(`${data.productName}`);
+                    $('#modalPrice').text(`${data.price}`);
+                    $('#modalPhoto').prop("src", `@Url.Content("~/images/uploads/products/")${data.photoPath}`);
+                    $('#modalSelectColor').data("productid", data.productId)
+                    $('#modalSelectSize').data("productid", data.productId)
+
+                    loadColor(productId)
+
+                    modalAddToCart.show()
+
+                }else{
+                    Swal.fire({
+                        title: data.apiResult.statusMessage,
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+
+            } else {
+                Swal.fire({
+                    title: '尚未登入!',
+                    text: "如想使用購物車,請先登入!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3C3C3C',
+                    cancelButtonColor: '#D0D0D0',
+                    confirmButtonText: '進行登入',
+                    cancelButtonText: '稍後登入'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `@Url.Content("~/Home/Login")`
+                    }
+                })
+            }
+        })
+
+        $('#divProductList').on('click', '.divCollection', async function (event) {
+            event.stopPropagation();
+
+            const response = await fetch(`@Url.Content("~/HomeApi/IsLogin")`)
+            const isLogin = await response.json();
+
+            if (isLogin) {
+                let productId = $(this).data("productid");
+                console.log(productId)
+                const resp = await fetch(`@Url.Content("~/MemberApi/ToggleCollectProduct?productId=")${productId}`);
+                const data = await resp.json();
+                console.log(data)
+                if (data.statusCode == 200) {
+                    Swal.fire({
+                        title: data.statusMessage,
+                        text: "",
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    GetCollectItems()
+
+                } else {
+                    Swal.fire({
+                        title: data.statusMessage,
+                        text: "",
+                        icon: 'warning',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+
+            } else {
+                Swal.fire({
+                    title: '尚未登入!',
+                    text: "如果想收藏商品,請先登入!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3C3C3C',
+                    cancelButtonColor: '#D0D0D0',
+                    confirmButtonText: '進行登入',
+                    cancelButtonText: '稍後登入'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `@Url.Content("~/Home/Login")`
+                    }
+                })
+            }
+        })
+
+        $(".ulGUI").on('click', '.pageItemPrevNumber', function () {
+            let rank = $("#selectOrderBy").val();
+            pageNumber = $(this).data("pagenumber");
+
+            Display(keyword, categoryName, rank, pageNumber, discountId)
+        })
+
+        async function loadColor(productId) {
+            const response = await fetch(`@Url.Content("~/productapi/GetStockColor/")${productId}`)
+            const datas = await response.json();
+
+            const colors = datas.map(color => {
+                const { colorId, colorName } = color;
+                return `<option value="${colorId}">${colorName}</option>`
+            })
+
+            $("#modalSelectColor").html(colors.join(""))
+
+            loadSize(productId);
+        }
+
+        async function loadSize(productId) {
+            const colorId = $("#modalSelectColor").val()
+            const response = await fetch(`@Url.Content("~/productapi/GetStockSize?")id=${productId}&colorId=${colorId}`)
+            
+            const datas = await response.json();
+
+            const sizes = datas.map(size => {
+                const { sizeId, sizeName } = size
+                return `<option value="${sizeId}">${sizeName}</option>`
+            })
+
+            $("#modalSelectSize").html(sizes.join(""))
+
+            loadProductPhoto(productId)
+        }
+
+        $("#modalSelectColor").on('change', function () {
+            let productId = $(this).data("productid")
+            
+            loadSize(productId)
+        })
+
+        $("#modalSelectSize").on('change', function () {
+            let productId = $(this).data("productid")
+
+            loadProductPhoto(productId)
+        })
+
+        async function loadProductPhoto(productId) {
+            const colorId = $("#modalSelectColor").val()
+            const sizeId = $("#modalSelectSize").val()
+
+            const response = await fetch(`@Url.Content("~/ProductApi/GetStockDetail?")productId=${productId}&colorId=${colorId}&sizeId=${sizeId}`)
+            const data = await response.json()
+
+            const { photoPath, stockId, quantity } = data
+
+            $("#modalPhoto").attr("src", `@Url.Content("~/images/uploads/products/")${photoPath}`)
+            $("#modalBtnAddToCart").data("stockid", stockId)
+        }
+
+        $('#modalBtnAddToCart').on('click', function () {
+
+            let stockId = $("#modalBtnAddToCart").data("stockid");
+            let qty = $("#modalOrderQty").val();
+
+            AddToCart(stockId, qty)
+            
+        })
+
+    </script>
+}

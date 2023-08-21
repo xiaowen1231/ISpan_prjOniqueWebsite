@@ -1,0 +1,106 @@
+﻿@model prjOniqueWebsite.Models.ViewModels.LoginVM
+
+@{
+    ViewData["Title"] = "會員登入";
+}
+
+<form method="post">
+    <div class="width-1000px mx-auto p-2 border rounded d-flex shadow" data-aos="zoom-in">
+        <div class="w-450-h-450">
+            <img src="@Url.Content("~/images/memberphoto/loginpage.jpg")" class="rounded" />
+        </div>
+        <div class="flex-fill p-2">
+            <div class="fs-5 fw-bold border-bottom p-2">
+                會員登入
+            </div>
+            <div class="fw-bold p-2 mt-2">
+                帳號:
+            </div>
+            <div class="p-2">
+                <input type="text" class="form-control" name="Email" value="" id="inputEmail">
+                @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+            </div>            
+            <div class="fw-bold p-2 mt-2">
+                密碼:
+            </div>
+            <div class="p-2">
+                <input type="password" class="form-control" name="Password" id="inputPassword">
+                @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-check m-2">
+                <input class="form-check-input" type="checkbox" value="" id="showPassword">
+                <label class="form-check-label" for="flexCheckDefault">
+                    顯示密碼
+                </label>
+            </div>
+            <div class="d-flex justify-content-between p-2">
+                <div class="cursor-pointer divLineLogin">
+                    <img src="@Url.Content("~/images/icon/line.png")" alt="Line Login" />
+                </div>
+                <div class="p-2">
+                    @*@Html.ActionLink("忘記密碼", "ForgetPwd","Home", "",new {@class="btn btn-outline-dark fw-bold" })*@
+                </div>
+                <div class="p-2">
+                    @Html.ActionLink("註冊", "Register","Home", "",new {@class="btn btn-outline-dark" })
+                    <input type="submit" value="登入" id="Login" class="btn btn-dark fw-bold">
+                </div>
+            </div>
+            <div class="mx-3 text-end position-sticky ">
+                <input type="button" class="btn btn-outline-secondary" value="DemoMember" id="DemoMember" />
+                <input type="button" class="btn btn-outline-secondary" value="DemoEmployee" id="DemoEmployee" />
+                <input type="button" class="btn btn-outline-secondary" value="DemoManager" id="DemoManager" />
+
+            </div>
+        </div>
+    </div>
+</form>
+@section Styles{
+    <style>
+        form{
+            position:fixed;
+            top:50%;
+            transform:translate(-50%,-59%);
+            left:50%;
+        }
+
+        .divLineLogin{
+            width:40px;
+            height:40px
+        }
+    </style>
+}
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('#showPassword').on('change', function () {
+                var passwordInput = $('#inputPassword');
+                if ($(this).is(':checked')) {
+                    passwordInput.attr('type', 'text');
+                } else {
+                    passwordInput.attr('type', 'password');
+                }
+            });
+        });
+        $('#DemoMember').on('click', function () {
+            let email = "shiao1124@gmail.com"
+            $('#inputEmail').val(email)
+            $('#inputPassword').val("123")
+        })
+        $('#DemoEmployee').on('click', function () {
+            let email = "Hank@gmail.com"
+            $('#inputEmail').val(email)
+            $('#inputPassword').val("123")
+        })
+        $('#DemoManager').on('click', function () {
+            let email = "Tom@gmail.com"
+            $('#inputEmail').val(email)
+            $('#inputPassword').val("123")
+        })
+
+        $('.divLineLogin').on('click',function(){
+            window.location.href = `@Url.Content("~/Home/LineLoginDirect")`
+        })
+
+    </script>
+}

@@ -1,0 +1,446 @@
+﻿@{
+    ViewData["Title"] = "首頁";
+}
+
+<div>
+    <div class="myCarousel">
+        <div class="myContainer">
+        </div>
+        <div class="shift">
+            <div class="btn left" onclick="leftShift()">
+                <img src="/Images/Carousel/left.png">
+            </div>
+            <div class="btn right" onclick="rightShift()">
+                <img src="/Images/Carousel/right.png">
+            </div>
+        </div>
+        <div class="bottom">
+        </div>
+    </div>
+    <div class="myTitle">
+        <div class="TitleIcon">
+            <img src="~/images/icon/price-sticker.png" />
+        </div>
+        <p>
+            新商品
+        </p>
+    </div>
+    <div class="ProductWall d-flex flex-wrap justify-content-center" id="divNewArrivals">
+    </div>
+    <div class="myTitle">
+        <div class="TitleIcon">
+            <img src="~/images/icon/fire.png" />
+        </div>
+        <p>
+            熱銷商品
+        </p>
+    </div>
+    <div class="ProductWall d-flex flex-wrap justify-content-center" id="divHot">
+    </div>
+</div>
+@section Styles{
+    <link href="~/css/homepage.css" rel="stylesheet" />
+    <style>
+        .w-240-h-240:hover {
+            width: 245px;
+            height: 245px;
+            transition: all 0.4s;
+        }
+
+        .price::before {
+            content: "$  ";
+        }
+
+        .imgCarousel{
+            cursor:pointer
+        }
+
+        .modal-content {
+            width: 750px;
+            position: fixed;
+            top: 50%;
+            transform: translate(-50%,-55%);
+            left: 50%;
+        }
+    </style>
+}
+
+@section Scripts{
+    <script>
+        function LoadCarousel() {
+            imageCount = document.querySelectorAll(
+                ".myCarousel .myContainer img"
+            ).length
+
+            const bottom = document.querySelector(".myCarousel .bottom")
+
+            for (let i = 0; i < imageCount; i++) {
+                const indicator = document.createElement("div")
+                indicator.classList.add("indicator")
+                indicator.onclick = () => setIndex(i)
+
+                bottom.append(indicator)
+            }
+            refresh()
+        }
+
+        let imgIndex = 0
+
+        let imageCount = 0
+
+        function createAuto() {
+            return setInterval(() => {
+                imgIndex++
+                refresh()
+            }, 3000)
+        }
+
+        let autoTimer = createAuto()
+
+        function refresh() {
+            if (imgIndex < 0) {
+                imgIndex = imageCount - 1
+            }
+            else if (imgIndex > imageCount - 1) {
+                imgIndex = 0
+            }
+
+            let myCarousel = document.querySelector('.myCarousel')
+
+            let width = getComputedStyle(myCarousel).width
+
+            width = Number(width.slice(0, -2))
+
+            myCarousel.querySelector(".myContainer").style.left =
+                imgIndex * width * -1 + "px"
+        }
+
+        let refreshWrapper = (func) => {
+            return function (...args) {
+                let result = func(...args)
+                refresh()
+
+                clearInterval(autoTimer)
+                autoTimer = createAuto()
+                return result
+            }
+        }
+
+        let leftShift = refreshWrapper(() => {
+            imgIndex--
+        })
+
+        let rightShift = refreshWrapper(() => {
+            imgIndex++
+        })
+
+        let setIndex = refreshWrapper((idx) => {
+            imgIndex = idx
+        })
+        
+        const divNewArrivals = document.querySelector('#divNewArrivals');
+
+        const divHot = document.querySelector('#divHot');
+
+        NewArrivals();
+
+        HotTop4();
+
+        async function HotTop4() {
+            const response = await fetch('@Url.Content("~/ProductApi/HotTop4")');
+            const datas = await response.json();
+
+            const cards = datas.map(theCard => {
+                const { id, productName, price, photoPath, discountMethod, discountPrice } = theCard
+
+                if (discountMethod == null) {
+                    return (`<div data-id="${id}" class="cursor-pointer border rounded shadow-sm m-2 divProductDetail" data-aos="fade-up">
+                                <div class="w-240-h-240 m-2">
+                                    <img src="@Url.Content("~/images/uploads/products/")${photoPath}" class="rounded" />
+                                </div>
+                                <div class="bg-dark rounded text-white m-2 text-center p-1 fw-bold">${productName}</div>
+                                <div class="price text-center">${price}</div>
+                                <div class="d-flex gap-3 mx-2 mb-2 justify-content-end align-items-center">
+                                    <div class="w-25-h-25 divShopping" data-productid="${id}" >
+                                        <img src="@Url.Content("~/images/icon/shopping_black.png")" />
+                                    </div>
+                                    <div class="w-25-h-25 divCollection" data-productid="${id}" >
+                                        <img src="@Url.Content("~/images/icon/love.png")" />
+                                    </div>
+                                </div>
+                            </div>`)
+                } 
+
+                else {
+                    return (`<div data-id="${id}" class="cursor-pointer position-relative border rounded shadow-sm m-2 divProductDetail" data-aos="fade-up">
+                                <div class="w-240-h-240 m-2">
+                                    <img src="@Url.Content("~/images/uploads/products/")${photoPath}" class="rounded" />
+                                </div>
+                                <div class="bg-dark rounded text-white m-2 text-center p-1 fw-bold">${productName}</div>
+                                <div class="text-center text-danger price">${discountPrice}</div>
+                                <div class="d-flex gap-3 mx-2 mb-2 align-items-center justify-content-end">
+                                    <div class="w-25-h-25 divShopping" data-productid="${id}">
+                                        <img src="@Url.Content("~/images/icon/shopping_black.png")" />
+                                    </div>
+                                    <div class="w-25-h-25 divCollection" data-productid="${id}">
+                                        <img src="@Url.Content("~/images/icon/love.png")" />
+                                    </div>
+                                </div>
+                                <div class="divShopping position-absolute top-0 start-0" data-productid="${id}" style="width:50px;height:50px">
+                                    <img src="@Url.Content("~/images/icon/sale-tag.png")" />
+                                </div>
+                            </div>`)
+                }
+
+            })
+
+        divHot.innerHTML += cards.join("");
+                                }
+
+        async function NewArrivals() {
+
+            const response = await fetch('@Url.Content("/ProductApi/NewArrivalsTop4")');
+            const datas = await response.json();
+            
+            const cards = datas.map(theCard => {
+                const { id, productName, price, photoPath, discountMethod, discountPrice } = theCard
+
+                if (discountMethod == null) {
+                    return (`<div data-id="${id}" class="cursor-pointer border rounded shadow-sm m-2 divProductDetail" data-aos="fade-up">
+                                        <div class="w-240-h-240 m-2">
+                                            <img src="@Url.Content("~/images/uploads/products/")${photoPath}" class="rounded" />
+                                        </div>
+                                        <div class="bg-dark rounded text-white m-2 text-center p-1 fw-bold">${productName}</div>
+                                        <div class="price text-center">${price}</div>
+                                        <div class="d-flex gap-3 mx-2 mb-2 justify-content-end align-items-center">
+                                            <div class="w-25-h-25 divShopping" data-productid="${id}" >
+                                                <img src="@Url.Content("~/images/icon/shopping_black.png")" />
+                                            </div>
+                                            <div class="w-25-h-25 divCollection" data-productid="${id}" >
+                                                <img src="@Url.Content("~/images/icon/love.png")" />
+                                            </div>
+                                        </div>
+                                    </div>`)
+                }
+
+                else {
+                    return (`<div data-id="${id}" class="cursor-pointer position-relative border rounded shadow-sm m-2 divProductDetail" data-aos="fade-up">
+                                        <div class="w-240-h-240 m-2">
+                                            <img src="@Url.Content("~/images/uploads/products/")${photoPath}" class="rounded" />
+                                        </div>
+                                        <div class="bg-dark rounded text-white m-2 text-center p-1 fw-bold">${productName}</div>
+                                        <div class="text-center text-danger price">${discountPrice}</div>
+                                        <div class="d-flex gap-3 mx-2 mb-2 align-items-center justify-content-end">
+                                            <div class="w-25-h-25 divShopping" data-productid="${id}">
+                                                <img src="@Url.Content("~/images/icon/shopping_black.png")" />
+                                            </div>
+                                            <div class="w-25-h-25 divCollection" data-productid="${id}">
+                                                <img src="@Url.Content("~/images/icon/love.png")" />
+                                            </div>
+                                        </div>
+                                        <div class="divShopping position-absolute top-0 start-0" data-productid="${id}" style="width:50px;height:50px">
+                                            <img src="@Url.Content("~/images/icon/sale-tag.png")" />
+                                        </div>
+                                    </div>`)
+                }
+            })
+
+            divNewArrivals.innerHTML = cards.join("")
+        }
+
+        $('.ProductWall').on('click', '.divProductDetail', function (event) {
+            let id = $(this).data("id")
+            window.location.href = `@Url.Content("~/Product/Detail/")${id}`;
+        })
+
+        $('.ProductWall').on('click', '.divShopping', async function (event) {
+            event.stopPropagation();
+
+            const response = await fetch(`@Url.Content("~/HomeApi/IsLogin")`)
+            const isLogin = await response.json();
+
+            if (isLogin) {
+                let productId = $(this).data("productid");
+
+                const resp = await fetch(`@Url.Content("~/ProductApi/ShowProductInfo/")${productId}`);
+                const data = await resp.json();
+
+                if (data.apiResult.statusCode == 200) {
+                    const modalAddToCart = new bootstrap.Modal(document.getElementById('modalAddToCart'));
+
+                    $('#modalProductName').text(`${data.productName}`);
+                    $('#modalPrice').text(`${data.price}`);
+                    $('#modalPhoto').prop("src", `@Url.Content("~/images/uploads/products/")${data.photoPath}`);
+                    $('#modalSelectColor').data("productid", data.productId)
+                    $('#modalSelectSize').data("productid", data.productId)
+
+                    loadColor(productId)
+
+                    modalAddToCart.show()
+
+                } else {
+                    Swal.fire({
+                        title: data.apiResult.statusMessage,
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+
+            } else {
+                Swal.fire({
+                    title: '尚未登入!',
+                    text: "如想使用購物車,請先登入!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3C3C3C',
+                    cancelButtonColor: '#D0D0D0',
+                    confirmButtonText: '進行登入',
+                    cancelButtonText: '稍後登入'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `@Url.Content("~/Home/Login")`
+                    }
+                })
+            }
+        })
+
+        $('.ProductWall').on('click', '.divCollection',async function (event) {
+            event.stopPropagation();
+
+            const response = await fetch(`@Url.Content("~/HomeApi/IsLogin")`)
+            const isLogin = await response.json();
+
+            if (isLogin) {
+                let productId = $(this).data("productid");
+                console.log(productId)
+                const resp = await fetch(`@Url.Content("~/MemberApi/ToggleCollectProduct?productId=")${productId}`);
+                const data = await resp.json();
+                console.log(data)
+                if (data.statusCode == 200) {
+                    Swal.fire({
+                        title: data.statusMessage,
+                        text: "",
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                    GetCollectItems()
+
+                } else {
+                    Swal.fire({
+                        title: data.statusMessage,
+                        text: "",
+                        icon: 'warning',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                }
+                
+            }else {
+                Swal.fire({
+                    title: '尚未登入!',
+                    text: "如想使用購物車,請先登入!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3C3C3C',
+                    cancelButtonColor: '#D0D0D0',
+                    confirmButtonText: '進行登入',
+                    cancelButtonText: '稍後登入'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `@Url.Content("~/Home/Login")`
+                    }
+                })
+            }
+        })
+
+        async function loadColor(productId) {
+            const response = await fetch(`@Url.Content("~/productapi/GetStockColor/")${productId}`)
+            const datas = await response.json();
+
+            const colors = datas.map(color => {
+                const { colorId, colorName } = color;
+                return `<option value="${colorId}">${colorName}</option>`
+            })
+
+            $("#modalSelectColor").html(colors.join(""))
+
+            loadSize(productId);
+        }
+
+        async function loadSize(productId) {
+            const colorId = $("#modalSelectColor").val()
+            const response = await fetch(`@Url.Content("~/productapi/GetStockSize?")id=${productId}&colorId=${colorId}`)
+
+            const datas = await response.json();
+
+            const sizes = datas.map(size => {
+                const { sizeId, sizeName } = size
+                return `<option value="${sizeId}">${sizeName}</option>`
+            })
+
+            $("#modalSelectSize").html(sizes.join(""))
+
+            loadProductPhoto(productId)
+        }
+
+        $("#modalSelectColor").on('change', function () {
+            let productId = $(this).data("productid")
+
+            loadSize(productId)
+        })
+
+        $("#modalSelectSize").on('change', function () {
+            let productId = $(this).data("productid")
+
+            loadProductPhoto(productId)
+        })
+
+        async function loadProductPhoto(productId) {
+            const colorId = $("#modalSelectColor").val()
+            const sizeId = $("#modalSelectSize").val()
+
+            const response = await fetch(`@Url.Content("~/ProductApi/GetStockDetail?")productId=${productId}&colorId=${colorId}&sizeId=${sizeId}`)
+            const data = await response.json()
+
+            const { photoPath, stockId, quantity } = data
+
+            $("#modalPhoto").attr("src", `@Url.Content("~/images/uploads/products/")${photoPath}`)
+            $("#modalBtnAddToCart").data("stockid", stockId)
+        }
+
+        $('#modalBtnAddToCart').on('click', function () {
+
+            let stockId = $("#modalBtnAddToCart").data("stockid");
+            let qty = $("#modalOrderQty").val();
+
+            AddToCart(stockId, qty)
+        })
+
+        GetCarouselInfo()
+
+        async function GetCarouselInfo() {
+            const response = await fetch(`@Url.Content("~/HomeApi/GetCarouselInfo")`)
+            const datas = await response.json()
+
+            let htmlCarouselImg = datas.map(item => {
+                const { photoPath, discountId } = item;
+
+                return (`<img src="@Url.Content("~/images/DiscountPhoto/")${photoPath}" data-discountid="${discountId}" class="imgCarousel"/>`)
+            })
+
+            $('.myContainer').html(htmlCarouselImg.join(""))
+            LoadCarousel()
+        }
+
+        $('.myContainer').on('click', '.imgCarousel', function (event) {
+            event.stopPropagation();
+
+            let discountId = $(this).data("discountid");
+
+            window.location.href = `@Url.Content("~/Product/List?discountId=")${discountId}`
+        })
+
+    </script>
+}

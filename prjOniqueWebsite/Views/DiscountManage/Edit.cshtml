@@ -1,0 +1,368 @@
+﻿@model prjOniqueWebsite.Models.ViewModels.BgDiscointCreateVM
+@{
+    ViewData["Title"] = "優惠編輯";
+    Layout = "~/Views/Shared/_Layout_Background.cshtml";
+    string fileName = "default.jpg";
+    if (!string.IsNullOrEmpty(Model.PhotoPath))
+    {
+        fileName = Model.PhotoPath;
+    }
+}
+<div>
+    <div class="fw-bold fs-4 border-bottom text-center p-3">編輯優惠</div>
+</div>
+<div class="m-2 p-2">
+    <form method="post" enctype="multipart/form-data">
+        <div class=" mx-auto justify-content-around border rounded shadow d-flex" style="width:1000px">
+            <div>
+                <div class="border rounded my-3 mx-auto btnUpload cursor-pointer" style="width:350px; height:350px">
+                    <img src="@Url.Content("~/images/DiscountPhoto/")@fileName" id="imgDiscountPhoto" class="rounded" />
+                </div>
+                <div class="width-400 mx-auto">
+                    <input type="file" class="form-control" style="visibility:hidden;" id="inputUpload" name="Photo" />
+                    <input asp-for="@Model.PhotoPath" type="hidden" name="PhotoPath" />
+                    <input value="@fileName" type="hidden" id="inputFileName" />
+                </div>
+            </div>
+            <div>
+                <div class="d-flex gap-3 justify-content-center my-2" style="height:62px;">
+                    <div class="fw-bold width-90px text-end" style="height:38px;line-height:38px;">活動名稱</div>
+                    <div class="width-300px">
+                        <input asp-for="@Model.Id" type="hidden" />
+                        <input asp-for="@Model.Title" class="form-control" name="Title" />
+                        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="d-flex gap-3 justify-content-center my-2" style="height:62px;">
+                    <div class="fw-bold width-90px text-end" style="height:38px;line-height:38px;">折扣方式</div>
+                    <div class="width-300px">
+                        <input asp-for="@Model.DiscountMethod" class="form-control" />
+                        @Html.ValidationMessageFor(model => model.DiscountMethod, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="d-flex gap-3 justify-content-center my-2" style="height:62px;">
+                    <div class="fw-bold width-90px text-end" style="height:38px;line-height:38px;">開始時間</div>
+                    <div class="width-300px">
+                        <input asp-for="BeginDate" class="form-control" name="BeginDate" />
+                        @Html.ValidationMessageFor(model => model.BeginDate, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="d-flex gap-3 justify-content-center my-2" style="height:62px;">
+                    <div class="fw-bold width-90px text-end" style="height:38px;line-height:38px;">結束時間</div>
+                    <div class="width-300px">
+                        <input asp-for="@Model.EndDate" class="form-control" name="EndDate" />
+                        @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="d-flex gap-3 justify-content-center my-2">
+                    <div class="fw-bold width-90px text-end" style="height:38px;line-height:38px;">活動內容</div>
+                    <div class="width-300px">
+                        <textarea asp-for="@Model.Description" class="form-control" name="Description"></textarea>
+                        @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+    
+        </div>
+        <div class="d-flex justify-content-center gap-3 my-4">
+            <a type="button" class="btn btn-outline-dark" href="@Url.Content("~/DiscountManage/Index")">取消</a>
+            <input type="submit" value="修改" class="btn btn-dark" />
+        </div>
+    </form>
+    <div class="p-2 mx-auto" style="width:1000px">
+        <div class="btn btn-outline-secondary my-3" id="divAddDiscountProduct">新增活動商品</div>
+        <div class="border border-dark-subtle shadow rounded-3 p-2" data-aos="fade-up">
+            <table class="table table-borderless table-hover align-middle text-center my-0">
+                <thead>
+                    <tr class="table-secondary">
+                        <th style="width:120px;">商品圖片</th>
+                        <th style="width:300px;">商品名稱</th>
+                        <th>原價</th>
+                        <th>折扣價</th>
+                        <th>刪除</th>
+                    </tr>
+                </thead>
+                <tbody id="tbodyDiscountProductList">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalAddDiscountProduct" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header gap-3">
+                <div class="d-flex justify-content-between flex-fill align-items-center">
+                    <div>
+                        <div class="fw-bold fs-5">新增優惠商品</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+            </div>
+            <div class="modal-body">
+                <div class="d-flex align-items-center justify-content-center gap-3 my-3">
+                    <div class="fw-bold fs-5">
+                        搜尋商品
+                    </div>
+                    <div>
+                        <input type="text" class="form-control" id="inputKeyword" />
+                    </div>
+                    <input type="button" class="btn btn-outline-secondary" value="搜尋" id="btnSearch" />
+                </div>
+                <div class="p-3 border rounded">
+                    <table class="table table-borderless table-hover align-middle text-center my-0">
+                        <thead>
+                            <tr class="table-secondary">
+                                <th scope="col" style="width:120px">商品圖片</th>
+                                <th scope="col">名稱</th>
+                                <th scope="col">原價</th>
+                                <th scope="col">是否加入優惠</th>
+                                <th scope="col">加入</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyAddToDiscountList">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        let keyword = ""
+        let discountId = @Model.Id
+
+            $('.btnUpload').on('click', function () {
+                $('#inputUpload').trigger('click');
+            })
+
+        const photo = document.querySelector("#inputUpload");
+
+        photo.addEventListener('change', function () {
+            let fileName = $('#inputFileName').val();
+
+            const files = photo.files
+            if (files.length == 0) {
+
+                const defaultPath = `@Url.Content("~/images/DiscountPhoto/")${fileName}`
+                $("#imgDiscountPhoto").attr("src", defaultPath)
+            }
+            else {
+                const url = URL.createObjectURL(files[0])
+                $("#imgDiscountPhoto").attr("src", url)
+            }
+        })
+
+        $('#divAddDiscountProduct').on('click', function () {
+            const modalAddDiscountProduct = new bootstrap.Modal(document.getElementById('modalAddDiscountProduct'));
+
+            modalAddDiscountProduct.show()
+        })
+
+        DisplayProductList("")
+
+        async function DisplayProductList(keyword) {
+            const response = await fetch(`@Url.Content("~/DiscountManageApi/DisplayProductList?keyword=")${keyword}`)
+            const datas = await response.json();
+
+            let htmlStr = ""
+
+            datas.map(item => {
+                htmlStr += `<tr>
+                                        <td>
+                                            <div class="w-120-h-120">
+                                                <img src="@Url.Content("~/images/uploads/products/")${item.photoPath}" />
+                                            </div>
+                                        </td>
+                                        <td class="text-center width-300px">
+                                        ${item.productName}
+                                        </td>
+                                        <td>
+                                            <div class="price">
+                                                ${item.price}
+                                            </div>
+                                        </td>`
+
+                if (item.discountId != null) {
+                    htmlStr += `<td>
+                                            是
+                                        </td>
+                                        <td class="" data-aos="flip-left" >
+                                            <div class="width-50px mx-auto">
+                                                <img src="@Url.Content("~/images/icon/checked.png")" />
+                                            </div>
+                                        </td>
+                                    </tr>`
+                } else {
+                    htmlStr += `<td>
+                                            否
+                                        </td>
+                                        <td>
+                                            <div class="btn btn-secondary btnAddToDiscount" data-productid="${item.id}">加入</div>
+                                        </td>
+                                    </tr>`
+                }
+            })
+
+            $('#tbodyAddToDiscountList').html(htmlStr)
+        }
+
+        $('#inputKeyword').on('keypress', function (event) {
+            if (event.key === "Enter") {
+
+                keyword = $(this).val()
+
+                DisplayProductList(keyword);
+            }
+        })
+
+        $("#btnSearch").on('click', function () {
+            keyword = $('#inputKeyword').val()
+
+            DisplayProductList(keyword);
+        })
+
+        $('#tbodyAddToDiscountList').on('click', '.btnAddToDiscount', async function () {
+            event.stopPropagation();
+
+            let productid = $(this).data("productid")
+
+            $.ajax({
+                url: '@Url.Content("~/DiscountManageApi/AddToDiscount")',
+                type: 'POST',
+                data: { 'productId': productid, 'discountId': discountId },
+                dataType: 'json'
+            }).done(datas => {
+                console.log(datas);
+
+                const { statusCode, statusMessage } = datas;
+
+                if (statusCode) {
+                    Swal.fire({
+                        title: statusMessage,
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500,
+                    })
+                    setTimeout(() => {
+                        DisplayProductList(keyword)
+                        DisplayDiscountProducts(discountId)
+                    }, 1500)
+
+                } 
+                else {
+                    Swal.fire({
+                        title: statusMessage,
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+            })
+
+        })
+
+        async function DisplayDiscountProducts(discountId) {
+            const response = await fetch(`@Url.Content("~/DiscountManageApi/DisplayDiscountProductList")?discountId=${discountId}`)
+            const datas = await response.json();
+
+            let htmlContext = datas.map(item => {
+                const { discountPrice, photoPath, price, productId, productName } = item;
+
+                return (`<tr>
+                                <td>
+                                    <div class="w-120-h-120">
+                                        <img src="@Url.Content("~/images/uploads/products/")${photoPath}" />
+                                    </div>
+                                </td>
+                                <td>
+                                    ${productName}
+                                </td>
+                                <td class="price">
+                                    ${price}
+                                </td>
+                                <td class="price">
+                                    ${discountPrice}
+                                </td>
+                                <td>
+                                    <div class="mx-auto cursor-pointer divDeleteDiscount" data-id=${productId} style="height:30px;width:30px;">
+                                        <img src="@Url.Content("~/images/icon/delete.png")" />
+                                    </div>
+                                </td>
+                            </tr>`)
+
+            })
+
+            $('#tbodyDiscountProductList').html(htmlContext.join(""))
+        }
+
+        DisplayDiscountProducts(discountId)
+
+        $('#tbodyDiscountProductList').on('click', '.divDeleteDiscount',async function (event) {
+            event.stopPropagation();
+
+            let id = $(this).data("id")
+            
+            const response = await fetch(`@Url.Content("~/DiscountManageApi/DeleteDiscountProduct/")${id}`)
+            const datas = await response.json();
+            
+            const { statusCode, statusMessage } = datas;
+
+                if (statusCode) {
+                    Swal.fire({
+                        title: statusMessage,
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 1500,
+                    })
+                    setTimeout(() => {
+                        DisplayProductList(keyword);
+                        DisplayDiscountProducts(discountId);
+                    }, 1500)
+
+                } 
+                else {
+                    Swal.fire({
+                        title: statusMessage,
+                        icon: 'error',
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                }
+        })
+
+    </script>
+}
+
+@section Styles{
+    <style>
+        div.modal-content {
+            width: 800px;
+            height: 600px;
+            position: fixed;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            left: 50%;
+        }
+
+        div.modal-body {
+            overflow: auto;
+        }
+
+        div.modal-header {
+            display: inline-block;
+        }
+
+        .price::before {
+            content: "$";
+        }
+    </style>
+}

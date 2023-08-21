@@ -1,0 +1,254 @@
+﻿@model prjOniqueWebsite.Models.ViewModels.MemberEditVM
+@{
+    ViewData["Title"] = "編輯會員資料";
+    Layout = @Url.Content("~/Views/Shared/_Layout_Background.cshtml");
+    string photoPath = "default.jpg";
+    //if(!string.IsNullOrEmpty(Model.PhotoPath))
+    //{
+    //    photoPath = Model.PhotoPath;
+    //}
+}
+
+<form class="container my-5 p-2 border border-secondary rounded-4 shadow" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="MemberId" value="@Model.MemberId" />
+    <div class="m-3 fs-3 fw-bold text-center border-bottom py-4 border-dark-subtle">編輯會員</div>
+    <div class=" p-2 my-3 justify-content-around row ">
+        <div class=" col-3 ">
+            <div class=" p-2 d-flex justify-content-center">
+                @if (string.IsNullOrEmpty(Model.PhotoPath))
+                {
+                    <img src="~/images/uploads/members/default.jpg" id="imgMember"class="w-240-h-240" />
+                }
+                else
+                {
+                    <img src="~/images/uploads/members/@Model.PhotoPath" id="imgMember"class="w-240-h-240" />
+                }
+            </div>
+            <div>
+                <input type="file" name="Photo" id="Photo" class="form-control my-5">
+                <input type="hidden" name="PhotoPath" value="@Model.PhotoPath" />
+            </div>
+        </div>
+        <div class=" col-8 border mx-2">
+            <div class="p-2 ">
+                <div class="row justify-content-around  p-3 ">
+                    <div class="pt-2 d-flex col-6 align-items-center">
+                        <div class=" width-90px text-end fw-bold">姓名</div>
+                        <div class="mx-2">
+                            <input type="text" class="form-control " value="@Model.Name" name="Name" />
+                            @Html.ValidationMessageFor(mem=>mem.Name,"",new{@class = "text-danger"})
+                        </div>
+                    </div>
+                    <div class="pt-2 d-flex col-6 align-items-center">
+                        <div class=" width-90px text-end fw-bold">生日</div>
+                        <div class="mx-2">
+                            <div class="mx-3" name="DateOfBirth" id="memberDateOfBirth">@Model.DateOfBirth</div>
+                            <input type="hidden" name="DateOfBirth" value="@Model.DateOfBirth" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-around p-3">
+                    <div class="pt-2 d-flex col-6 align-items-center">
+                        <div class=" width-90px text-end fw-bold">性別</div>
+                        <div class="mx-3 d-flex">
+                            <div class="mx-3" name="Gender" id="Gender">@Model.Gender</div>
+                            <input type="hidden" name="Gender" value="@Model.Gender" />
+                            @* @{
+                            if (Model.Gender=="男")
+                            {
+                            <div class="form-check ">
+                            <input class="form-check-input" type="radio" name="Gender" id="genderTrue" value="@Model.Gender">
+                            <label class="form-check-label" for="genderTrue">
+                            女
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Gender" id="genderFalse" value="@Model.Gender" checked>
+                            <label class="form-check-label" for="genderFalse">
+                            男
+                            </label>
+                            </div>
+                            }
+                            else
+                            {
+                            <div class="form-check ">
+                            <input class="form-check-input" type="radio" name="Gender" id="genderTrue" value="@Model.Gender" checked>
+                            <label class="form-check-label" for="genderTrue">
+                            女
+                            </label>
+                            </div>
+                            <div class="form-check">
+                            <input class="form-check-input" type="radio" name="Gender" id="genderFalse" value="@Model.Gender" >
+                            <label class="form-check-label" for="genderFalse">
+                            男
+                            </label>
+                            </div>
+                            }
+                            }*@
+                        </div>
+                    </div>
+                    <div class="pt-2 d-flex col-6 align-items-center">
+                        <div class=" width-90px text-end fw-bold">電話</div>
+                        <div class="mx-3">
+                            <input type="text" class="form-control" value="@Model.Phone" name="Phone" />
+                            @Html.ValidationMessageFor(mem=>mem.Phone,"",new{@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-around p-3">
+                    <div class="pt-2 d-flex col-6 align-items-center">
+                        <div class=" width-90px text-end fw-bold">信箱</div>
+                        <div class="mx-3">
+                            <input type="text" class="form-control" value="@Model.Email" name="Email">
+                            @Html.ValidationMessageFor(mem=>mem.Email,"",new{@class = "text-danger"})
+                        </div>
+                    </div>
+                    <div class="pt-2 d-flex col-6 align-items-center">
+                        <div class=" width-90px text-end fw-bold">密碼</div>
+                        <div class="mx-3">
+                            <input type="password" class="form-control" value="@Model.Password" name="Password" />
+                            @Html.ValidationMessageFor(mem=>mem.Password,"",new{@class = "text-danger"})
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-around p-3">
+                    <div class="pt-2 d-flex col-6 align-items-center">
+                        <div class=" width-90px text-end fw-bold">會員等級</div>
+                        <div class="mx-3">
+                            <input type="hidden" value="@Model.MemberLevel" id="memberLevel" />
+                            <select class="form-select" name="MemberLevel" id="level"></select>
+                        </div>
+                    </div>
+                    <div class="pt-2 d-flex col-6 align-items-center">
+                        <div class=" width-90px text-end fw-bold">註冊日期</div>
+                        <div class="mx-3">
+                            <div class="mx-3" name="RegisterDate" id="RegisterDate">@Model.RegisterDate</div>
+                            <input type="hidden" name="RegisterDate" value="@Model.RegisterDate" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row justify-content-around p-3">
+                    <div class="col-12  mt-2 d-flex justify-content-start ">
+                        <div class=" width-90px text-end fw-bold">地址</div>
+                        <div class="mx-3">
+                            <input type="hidden" value="@Model.Citys" id="memberCity" />
+                            <select class="form-select" name="Citys" id="city">
+                                @* <option value="1">台北市</option>
+                                <option value="2">新北市</option>
+                                <option value="3" >桃園市</option>*@
+                            </select>
+                        </div>
+                        <div class="mx-3">
+                            <input type="hidden" value="@Model.Areas" id="memberArea" />
+                            <select class="form-select" name="Areas" id="area">
+                                @*<option value="1">大安區</option>
+                                <option value="2">中山區</option>
+                                <option value="3">中正區</option>*@
+                            </select>
+                        </div>
+                        <div class="mx-3 ">
+                            <input type="text" class="form-control" value="@Model.Address" name="Address" />
+                        </div>
+                    </div>
+                    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                </div>
+
+                <div class="row justify-content-around p-5">
+                    <div class="text-center ">
+                        <input type="submit" value="編輯會員" class="btn btn-dark" />
+                        @Html.ActionLink("返回會員管理", "index","member", "",new {@class="btn btn-outline-dark" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts{
+    <script>
+        loadCity()
+        loadMemberLevel()
+        async function loadMemberLevel() {
+            const response = await fetch(`@Url.Content("~/memberapi/LoadMemberLevel")`)
+            const datas = await response.json();
+            const memberLevel = $("#memberLevel").val()
+            let memberLevelOptions = ""
+            //console.log(datas)
+            datas.map(item => {
+                const { memberLevelId, memberLevelName } = item
+                if (memberLevelName == memberLevel) {
+                    memberLevelOptions += `<option value="${memberLevelId}" selected>${memberLevelName}</option>`
+                }
+                else {
+                    memberLevelOptions += `<option value="${memberLevelId}" >${memberLevelName}</option>`
+                }
+            })
+            //console.log(memberLevelOptions)
+            $('#level').append(memberLevelOptions)
+        }
+        async function loadCity() {
+            const response = await fetch(`@Url.Content("~/memberapi/LoadCity")`)
+            const datas = await response.json();
+            const memberCity = $("#memberCity").val()
+            let selectOptions = ""
+
+            datas.map(item => {
+                const { cityId, cityName } = item
+                if (cityName == memberCity) {
+                    selectOptions += ` <option value="${cityId}" selected>${cityName}</option>`
+                } else {
+                    selectOptions += ` <option value="${cityId}">${cityName}</option>`
+                }
+            })
+
+            $("#city").append(selectOptions)
+
+            loadArea();
+        }
+
+        $("#city").change(function () {
+            // 清空area選項
+            $("#area").empty();
+            loadArea();
+        })
+
+        async function loadArea() {
+            const cityId = $("#city").val()
+            const response = await fetch(`@Url.Content("~/memberapi/loadarea?cityId=")${cityId}`)
+            const datas = await response.json();
+            const memberArea = $("#memberArea").val()
+            let selectOptions = ""
+
+            datas.map(item => {
+                const { areaId, areaName } = item
+                if (areaName == memberArea) {
+                    selectOptions += ` <option value="${areaId}" selected>${areaName}</option>`
+                } else {
+                    selectOptions += ` <option value="${areaId}">${areaName}</option>`
+                }
+            })
+
+            $("#area").append(selectOptions);
+        }
+
+        const photo = document.querySelector('#Photo')
+
+        photo.addEventListener('change', () => {
+            let file = photo.files
+
+            if (file.length != 0) {
+                const url = URL.createObjectURL(file[0]);
+                $('#imgMember').attr('src', url)
+            }
+            else {
+                let originalPhotoPath = document.getElementById('imgMember').dataset.originalpath
+
+                console.log(originalPhotoPath)
+
+                $('#imgMember').attr('src', `@Url.Content("~/images/uploads/members/")${originalPhotoPath}`)
+            }
+        });
+
+    </script>
+}

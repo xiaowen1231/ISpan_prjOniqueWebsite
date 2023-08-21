@@ -1,0 +1,55 @@
+﻿.nav-logo {
+    width: 60px;
+    transition: all 0.5s;
+}
+
+.nav-logo-en {
+    width: 130px;
+    transition: all 0.5s;
+}
+
+.nav-logo:hover {
+    width: 65px;
+}
+
+.nav-logo-en:hover {
+    width: 135px;
+}
+
+.nav-text {
+    transition: all 0.5s;
+}
+
+    .nav-text:hover {
+        font-size: 18px;
+        font-weight: bold;
+        color: #FFD306;
+    }
+
+    .nav-text:not(:hover) {
+        transition: all 0.5s;
+    }
+
+.nav-icon{
+    width:30px;
+    transition:all 0.5s;
+    cursor:pointer;
+}
+.nav-icon:hover {
+    width: 35px;
+
+}
+#page-container {
+    position: relative;
+    min-height: calc( 100vh - 103px);
+}
+#content-wrap {
+    padding-bottom: 168px; /* Footer height */
+}
+
+#footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 168px; /* Footer height */
+}
