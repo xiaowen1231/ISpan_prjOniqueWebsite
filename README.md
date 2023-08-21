@@ -11,10 +11,13 @@ https://drive.google.com/file/d/1i5O5z7SRB6GU0ypWmD4RJtvdtcIpWIh1/view?usp=shari
 
 會員登入授權:
 使用技術:
+
 使用CookieAuthenticationDefaults將會員登入資料儲存於cookie中，
 並使用Claim類別判斷該登入帳號為資料庫中的員工帳號或會員帳號，
 宣告使用者的ClaimTypes.Role儲存帳號的使用角色，
 再使用[Authorize]針對不同的controller或action進行權限的管理
+
+
 第三方登入:
 呼叫Line Login 的API並指定Callback action可取得
 token的line的使用者的姓名、照片、line每個帳號的唯一固定userId
