@@ -10,12 +10,13 @@ https://drive.google.com/file/d/1i5O5z7SRB6GU0ypWmD4RJtvdtcIpWIh1/view?usp=shari
 在此專案負責開發的項目為:
 
 會員登入授權:
-使用技術:
 
+使用技術:
 使用CookieAuthenticationDefaults將會員登入資料儲存於cookie中，
 並使用Claim類別判斷該登入帳號為資料庫中的員工帳號或會員帳號，
 宣告使用者的ClaimTypes.Role儲存帳號的使用角色，
 再使用[Authorize]針對不同的controller或action進行權限的管理
+
 
 
 第三方登入:
@@ -62,6 +63,8 @@ token的line的使用者的姓名、照片、line每個帳號的唯一固定user
 分頁籤將依照商品數量及目前頁數動態變更。
 
 購物車功能:
+使用ajax判斷會cookie內是否有身分為會員的使用者登入，
+若沒有澤導向登入頁面，
 可於商品明細頁及商品卡片右下角的購物車圖案使用功能，
 依照選擇商品的項目去Callback商品的顏色選項，
 並在依選擇的顏色選項去Callback商品有的尺寸選項，
@@ -72,6 +75,7 @@ token的line的使用者的姓名、照片、line每個帳號的唯一固定user
 前端可以依照狀態碼顯示訊息提醒顧客此次操作為成功或失敗。
 最後service判斷沒有問題我們也會去資料庫搜尋該登入的會員及他選定的商品是否已有此資料，
 而判斷該更新數量或加入一筆新的購物車。
+每次更新購物車成功便會callback更新導覽列的購物車比數圖示
 
 購物車內頁:
 清單頁，一樣可以做該會員的購物車的增刪修。
